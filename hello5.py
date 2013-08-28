@@ -33,7 +33,12 @@ def hello():
 @app.route('/user/<username>')
 def show_user_profile(username):
     # show the user profile for that user
-    return 'User %s' % username
+    # Let's just hardcode some tweets for now
+    tweets = ["Something awesome happened at #pyboot", 
+            "The first rule of #pyboot is you must tell everyone about #pyboot",
+            "The second rule of #pyboot is: you must endure memes and pop culture references" 
+            ]
+    return render_template('user_dummy.html', username=username, tweets=tweets)
 
 @app.route('/tweet/<int:tweet_id>')
 def show_tweet(tweet_id):
@@ -41,7 +46,9 @@ def show_tweet(tweet_id):
     username = 'ivanov'
     user_url = url_for('show_user_profile', username=username)
     # We've hidden away the string logic in the file templates/tweet.html
-    return render_template('tweet.html', user_url=user_url, username=username)
+    tweet_text = 'this is some test test #' + str(tweet_id) 
+    return render_template('tweet.html', user_url=user_url, username=username,
+                           tweet=tweet_text)
 
 if __name__ == "__main__":
     if run_on_public_interface:
