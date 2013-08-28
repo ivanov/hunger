@@ -1,4 +1,6 @@
 import urllib2
+import numpy.testing as npt
+
 
 
 url_instance= urllib2.urlopen('https://twitter.com/search?q=%23pyboot&mode=realtime')
@@ -33,5 +35,33 @@ def scrape_usernames_quick_and_dirty(content):
             username = content[hit:end]
             usernames.append(username)
         start = end
+    return usernames
 
-#def scrape_usernames_using_etree
+def scrape_usernames_beautiful(content):
+    try:
+        import BeautifulSoup
+    except ImportError:
+        raise("Sorry, you'll need to install BeautifulSoup to use this" ) 
+    soup = BeautifulSoup.BeautifulSoup(content)
+
+    all_bs = [x.findParent().findNextSibling('b') for x in soup.findAll('s', text='@')]
+
+    usernames = []
+    for b in all_bs:
+        if len(b.contents) > 0:
+            # twitter has some @ signs with no usernames on that page
+            usernames.append(b.contents[0])
+
+    return usernames
+
+def test_scrapers():
+    "Verify that our two ways of getting usernames yields the same results" 
+    url_instance= urllib2.urlopen('https://twitter.com/search?q=%23pyboot&mode=realtime')
+    content = url_instance.read()
+    url_instance.close()
+
+    names_quick = scrape_usernames_quick_and_dirty(content) 
+    names_beautiful = scrape_usernames_beautiful(content) 
+
+    npt.assert_array_equal(names_quick, names_beautiful) 
+
